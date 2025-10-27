@@ -1,4 +1,3 @@
-// src/pages/login.js
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { login, isLoggedIn } from '../utils/auth';
@@ -13,9 +12,9 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (isLoggedIn()) {
-      router.replace('/checkout'); // redirect kalau sudah login
+      router.replace('/checkout');
     } else {
-      setLoading(false); // tampilkan form kalau belum login
+      setLoading(false);
     }
   }, [router]);
 
@@ -24,7 +23,7 @@ export default function LoginPage() {
     setError('');
     try {
       await login(email, password);
-      router.push('/'); // redirect ke homepage
+      router.push('/');
     } catch (err) {
       setError(err.message);
     }
