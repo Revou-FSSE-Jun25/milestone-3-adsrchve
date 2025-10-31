@@ -1,5 +1,5 @@
 'use client';
-import { useCart } from '@/context/CartContext';
+import { useCart } from "@/store/cartStore";
 import Link from 'next/link';
 
 export default function CartPage() {
@@ -8,17 +8,16 @@ export default function CartPage() {
   if (cart.length === 0) {
     return (
       <div className="container mx-auto px-4 py-16 text-center text-black">
-        <h1 className="text-3xl text-white font-bold mb-4">Your cart is empty</h1>
-        <Link href="/" className="bg-blue-600 text-white px-6 py-3 rounded-lg">
-          Continue Shopping
-        </Link>
+        <h1 className="text-3xl text-white font-bold mb-2">Your cart is empty!</h1>
+        <p className="text-white mb-10">Let's continue shopping and put your items in the cart.</p>
+        <Link href="/" className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-800">Go to Shop</Link>
       </div>
     );
   }
 
   return (
     <div className="container mx-auto px-4 py-8 text-black">
-      <h1 className="text-3xl font-bold mb-8">Shopping Cart</h1>
+      <h1 className="text-3xl font-bold text-white mt-4 mb-8">Shopping Cart</h1>
 
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
@@ -54,9 +53,7 @@ export default function CartPage() {
                 <button
                   onClick={() => removeFromCart(item.id)}
                   className="text-red-600 text-sm mt-2 hover:underline"
-                >
-                  Remove
-                </button>
+                > Remove</button>
               </div>
             </div>
           ))}

@@ -1,13 +1,26 @@
-'use client';
+"use client";
 
 import Link from "next/link";
-import { useCart } from '@/context/CartContext';
-import { useState } from 'react';
+import { useCart } from '@/store/cartStore';
+import { useEffect, useState } from 'react';
+import { signIn, signOut, useSession } from "next-auth/react";
+
+console.log ("Cart Store Loaded:",  useCart.getState());
 
 export default function Navbar() {
-  const { getCartCount } = useCart();
+  const { cart, getCartCount } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const cartCount = getCartCount();
+  const { data: session, status } = useSession();
+
+  console.log("Session:", session, "Status:", status);
+  console.log("🛒 Cart sekarang:", cart);
+  console.log("📦 Total item:", getCartCount());
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   return (
     <nav className="fixed top-0 left-0 w-full z-50 bg-[#001F3F] shadow-md">
@@ -33,12 +46,29 @@ export default function Navbar() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
               </svg>
               Cart
-              {cartCount > 0 && (
+              {isClient && cartCount > 0 && (
                 <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
                   {cartCount}
                 </span>
               )}
             </Link>
+
+            {/* Login/Logout */}
+            {status === "loading" ? (
+              <span className="text-white">Loading...</span>
+            ) : session ? (
+              <>
+                <span className="text-white">Hi, {session.user?.name || "User"}</span>
+                <button onClick={() => signOut()}
+                        className="text-white hover:text-blue-200 ml-2"
+                >Logout</button>
+              </>
+            ) : (
+              <button onClick={() => signIn()}
+                      className="text-white hover:text-blue-200 ml-2">
+                Login
+              </button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -81,8 +111,25 @@ export default function Navbar() {
             Admin
           </Link>
           <Link href="/cart" className="block py-2 text-white hover:text-blue-200" onClick={() => setMobileMenuOpen(false)}>
-            Cart {cartCount > 0 && `(${cartCount})`}
+            Cart {isClient && cartCount > 0 && `(${cartCount})`}
           </Link>
+
+          {status === "loading" ? (
+            <span className="text-white">Loading...</span>
+          ) : session ? (
+            <>
+              <span className="text-white">Hi, {session.user?.name || "User"}</span>
+              <button onClick={() => signOut()}
+                      className="block py-2 text-white hover:text-blue-200">
+                Logout
+              </button>
+            </>
+          ) : (
+            <button onClick={() => signIn()}
+                    className="block py-2 text-white hover:text-blue-200">
+              Login
+            </button>
+          )}
         </div>
       </div>
     </nav>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCart } from '@/context/CartContext';
+import { useCart } from '@/store/cartStore';
 import { useState, useEffect } from 'react';
 
 export default function ProductClient({ product }) {
@@ -27,7 +27,7 @@ export default function ProductClient({ product }) {
     <button
       onClick={handleAddToCart}
       className={`py-2 px-4 rounded font-semibold ${
-        added ? 'bg-green-600 text-white' : 'bg-blue-600 text-white hover:bg-blue-700'
+        added ? 'bg-green-600 text-white' : 'bg-blue-600 text-white hover:bg-blue-800'
       }`}
     >
       {added ? 'Added to Cart!' : 'Add to Cart'}

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -81,13 +81,13 @@ export default function AdminPage() {
                 <td className="px-6 py-4 flex gap-2">
                   <Link
                     href={`/admin/edit-product/${product.id}`}
-                    className="text-yellow-400 hover:text-yellow-600 font-semibold"
+                    className="text-white hover:text-yellow-400 font-semibold"
                   >
                     Edit
                   </Link>
                   <button
                     onClick={() => handleDelete(product.id)}
-                    className="text-red-400 hover:text-red-600 font-semibold"
+                    className="text-red-500 hover:text-red-800 font-semibold"
                   >
                     Delete
                   </button>
