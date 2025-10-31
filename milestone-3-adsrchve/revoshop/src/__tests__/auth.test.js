@@ -1,90 +1,83 @@
 /**
  * @jest-environment jsdom
  */
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import LoginPage from "@/app/login/page";
+import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import LoginPage from '../pages/login';
-import { useRouter } from 'next/router';
-import * as authUtils from '../utils/auth';
-
-// ===== Mock Next.js router =====
-jest.mock('next/router', () => ({
+// Mock router dan next-auth
+jest.mock("next/navigation", () => ({
   useRouter: jest.fn(),
 }));
 
-// ===== Mock auth utils =====
-jest.mock('../utils/auth', () => ({
-  login: jest.fn(),
-  isLoggedIn: jest.fn(),
+jest.mock("next-auth/react", () => ({
+  signIn: jest.fn(),
 }));
 
-describe('Login Page', () => {
-  let pushMock, replaceMock;
+// Mock global fetch agar tidak error
+global.fetch = jest.fn(() =>
+  Promise.resolve({
+    json: () => Promise.resolve({}),
+  })
+);
+
+describe("Login Page", () => {
+  let pushMock;
 
   beforeEach(() => {
     pushMock = jest.fn();
-    replaceMock = jest.fn();
-    useRouter.mockReturnValue({ push: pushMock, replace: replaceMock });
-    authUtils.isLoggedIn.mockReturnValue(false); // default belum login
-  });
-
-  afterEach(() => {
+    useRouter.mockReturnValue({ push: pushMock });
     jest.clearAllMocks();
   });
 
-  it('renders login form', () => {
+  it("renders login form", () => {
     render(<LoginPage />);
-
-    expect(screen.getByPlaceholderText(/you@example.com/i)).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/••••••••/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /login/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /login/i })).toBeInTheDocument();
   });
 
-  it('navigates to homepage on successful login', async () => {
-    authUtils.login.mockResolvedValue({ token: 'FAKE_TOKEN' });
-
+  it("calls signIn on submit", async () => {
     render(<LoginPage />);
 
-    fireEvent.change(screen.getByPlaceholderText(/you@example.com/i), {
-      target: { value: 'test@example.com' },
+    fireEvent.change(screen.getByLabelText(/username/i), {
+      target: { value: "test@example.com" },
     });
-    fireEvent.change(screen.getByPlaceholderText(/••••••••/i), {
-      target: { value: 'password123' },
+    fireEvent.change(screen.getByLabelText(/password/i), {
+      target: { value: "password123" },
     });
 
-    fireEvent.click(screen.getByRole('button', { name: /login/i }));
+    // Mock signIn response
+    signIn.mockResolvedValueOnce({ ok: true, error: null });
 
-    // tunggu login selesai
-    await screen.findByRole('button', { name: /login/i });
+    fireEvent.click(screen.getByRole("button", { name: /login/i }));
 
-    expect(authUtils.login).toHaveBeenCalledWith('test@example.com', 'password123');
-    expect(pushMock).toHaveBeenCalledWith('/');
+    await waitFor(() => {
+      expect(signIn).toHaveBeenCalledWith("credentials", {
+        username: "test@example.com",
+        password: "password123",
+        redirect: false,
+      });
+    });
   });
 
-  it('shows error on failed login', async () => {
-    authUtils.login.mockRejectedValue(new Error('login failed'));
-
+  it("navigates to homepage on successful login", async () => {
     render(<LoginPage />);
 
-    fireEvent.change(screen.getByPlaceholderText(/you@example.com/i), {
-      target: { value: 'wrong@example.com' },
+    fireEvent.change(screen.getByLabelText(/username/i), {
+      target: { value: "test@example.com" },
     });
-    fireEvent.change(screen.getByPlaceholderText(/••••••••/i), {
-      target: { value: 'wrongpassword' },
+    fireEvent.change(screen.getByLabelText(/password/i), {
+      target: { value: "password123" },
     });
 
-    fireEvent.click(screen.getByRole('button', { name: /login/i }));
+    signIn.mockResolvedValueOnce({ ok: true, error: null });
 
-    const errorMessage = await screen.findByText(/login failed/i);
-    expect(errorMessage).toBeInTheDocument();
-  });
+    fireEvent.click(screen.getByRole("button", { name: /login/i }));
 
-  it('redirects to checkout if already logged in', () => {
-    authUtils.isLoggedIn.mockReturnValue(true); // user sudah login
-
-    render(<LoginPage />);
-
-    expect(replaceMock).toHaveBeenCalledWith('/checkout');
+    await waitFor(() => {
+      expect(pushMock).toHaveBeenCalledWith("/");
+    });
   });
 });

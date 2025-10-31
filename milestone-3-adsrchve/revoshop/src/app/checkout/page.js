@@ -8,7 +8,7 @@ export default async function CheckoutPage() {
     return (
         <div>
             <h1>Checkout Page</h1>
-            <p>Welcome, {session?.user?.name || "Guest" }!</p>
+            <p>Welcome, {session?.user?.name || "Admin User" }!</p>
 
             <LogoutButton />
         </div>

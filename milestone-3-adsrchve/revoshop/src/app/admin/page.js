@@ -36,7 +36,7 @@ export default function AdminPage() {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Admin Dashboard</h1>
         <Link
-          href="/admin/add-product"
+          href="/admin/add"
           className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold shadow-lg transition"
         >
           + Add Product
@@ -80,7 +80,7 @@ export default function AdminPage() {
                 </td>
                 <td className="px-6 py-4 flex gap-2">
                   <Link
-                    href={`/admin/edit-product/${product.id}`}
+                    href={`/admin/edit/${product.id}`}
                     className="text-white hover:text-yellow-400 font-semibold"
                   >
                     Edit
